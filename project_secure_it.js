@@ -3,7 +3,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var url = require('url');
 var sleep = require('sleep');
-
+var schedule = require('node-schedule');
 
 
 var POLLING_SERVER = 'localhost';
@@ -12,6 +12,40 @@ var CAM_ID = 101;
 var action = 'status';
 var H264 = '.h264';
 var MP4 = '.mp4';
+var JPG = '.jpg';
+var IMAGES_FOLDER = '/home/pi/images/';
+var VIDEOS_FOLDER = '/home/pi/videos/';
+/**
+ * schedule job to delete the picture and videos
+ * every day at mid night
+ */
+var sch = schedule.scheduleJob('1 * * * *', function(){
+		console.log('schduler called.');
+
+ 		exec('rm -f '+IMAGES_FOLDER+'*'+JPG, function(err, stdin, stdou){
+ 			if(err){
+ 				console.log('Failed to delete images and videos.');
+ 			}else{
+ 				console.log('Deleted the images and videos successfully.');
+ 			}
+ 		});
+
+ 		exec('rm -f '+VIDEOS_FOLDER+'*'+H264, function(err, stdin, stdou){
+ 			if(err){
+ 				console.log('Failed to delete images and videos.');
+ 			}else{
+ 				console.log('Deleted the images and videos successfully.');
+ 			}
+ 		});
+ 		exec('rm -f '+VIDEOS_FOLDER+'*'+MP4, function(err, stdin, stdou){
+ 			if(err){
+ 				console.log('Failed to delete images and videos.');
+ 			}else{
+ 				console.log('Deleted the images and videos successfully.');
+ 			}
+ 		});
+
+ 	});
 
 /**
  * server listening 
@@ -95,7 +129,7 @@ var service = {
 	take_a_picture: function(){
 		console.log("take_a_picture");
 	    var now = new Date(),
-      	fileName = '/home/pi/images/' + now.getTime() + '.jpg';
+      	fileName = IMAGES_FOLDER + now.getTime() + '.jpg';
 
       	var waiting = true;
 
@@ -121,7 +155,7 @@ var service = {
 	record_a_video: function(){
 		console.log("record_a_video");
 	    var now = new Date(),
-      	fileName = '/home/pi/videos/' + now.getTime();
+      	fileName = VIDEOS_FOLDER + now.getTime();
       	exec('raspivid -o ' + fileName+H264+' -t 1000', function(err, stdin, stdou){
       		if(err){
       			console.log("error taking video.");
